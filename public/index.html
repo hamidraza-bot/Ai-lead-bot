@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aria — AI Voice Receptionist · BrightSmile Dental (Demo)</title>
+  <meta name="description" content="Aria is a rule-based AI receptionist demo for a sample dental clinic. Chat, book an appointment, and watch calls get logged — built with Python and n8n.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">A</span>
+        <div>
+          <strong>Aria</strong>
+          <span class="brand-sub">AI Voice Receptionist · BrightSmile Dental</span>
+        </div>
+      </div>
+      <span class="badge">Demo · rule-based agent · sample data only</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Never miss a call again.</h1>
+      <p class="lead">
+        Aria answers the phone, chats with patients, books appointments and
+        logs every call — 24/7, for a local service business. This page is a
+        <strong>live working demo</strong> of the system: everything below
+        talks to a real local server, but Aria is a rule-based demo agent and
+        all data is illustrative.
+      </p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#chat">💬 Chat with Aria</a>
+        <a class="btn btn-ghost" href="#book">📅 Book an appointment</a>
+        <a class="btn btn-ghost" href="#how">⚙️ How it works</a>
+      </div>
+      <p class="hero-note">
+        Built by <a href="https://github.com/hamidraza-bot">Hamid Raza</a> ·
+        AI Automation Engineer · n8n · Python ·
+        <a href="https://github.com/hamidraza-bot/n8n-ai-automation-templates">n8n templates</a> ·
+        <a href="https://www.linkedin.com/in/hamid-raza-b4338938a">LinkedIn</a>
+      </p>
+    </section>
+
+    <section class="grid">
+      <!-- Chat -->
+      <article class="card" id="chat">
+        <h2>💬 Live chat with Aria</h2>
+        <p class="card-sub">Ask about services, prices, opening hours — or try booking.</p>
+        <div class="chat-window" id="chatWindow" aria-live="polite">
+          <div class="msg msg-aria">
+            <span class="msg-name">Aria</span>
+            Hello! I'm Aria, the receptionist at BrightSmile Dental.
+            Ask me about prices, opening hours, or book an appointment.
+          </div>
+        </div>
+        <div class="chips" id="quickChips">
+          <button type="button" data-q="How much is teeth whitening?">Whitening price?</button>
+          <button type="button" data-q="What are your opening hours?">Opening hours?</button>
+          <button type="button" data-q="I want to book a cleaning">Book a cleaning</button>
+          <button type="button" data-q="What services do you offer?">Services?</button>
+        </div>
+        <form class="chat-form" id="chatForm">
+          <input type="text" id="chatInput" placeholder="Type your message…" autocomplete="off" required>
+          <button class="btn btn-primary" type="submit">Send</button>
+        </form>
+      </article>
+
+      <!-- Booking -->
+      <article class="card" id="book">
+        <h2>📅 Book an appointment</h2>
+        <p class="card-sub">Saved to the call log below, with a reference number.</p>
+        <form id="bookForm" novalidate>
+          <label>Your name
+            <input type="text" id="bkName" placeholder="e.g. Sarah Miller" required minlength="2">
+          </label>
+          <label>Phone
+            <input type="tel" id="bkPhone" placeholder="e.g. 555-013-4471" required>
+          </label>
+          <div class="row">
+            <label>Service
+              <select id="bkService" required>
+                <option value="">Choose…</option>
+                <option>Check-up &amp; Cleaning — $89</option>
+                <option>Filling — $120</option>
+                <option>Root Canal — $450</option>
+                <option>Teeth Whitening — $199</option>
+                <option>Tooth Extraction — $150</option>
+                <option>Braces Consultation — free</option>
+              </select>
+            </label>
+            <label>Date
+              <input type="date" id="bkDate" required>
+            </label>
+            <label>Time
+              <input type="time" id="bkTime" required>
+            </label>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit">Confirm booking</button>
+        </form>
+        <div class="confirm" id="bookResult" hidden></div>
+        <p class="fineprint">Demo only — no real appointment is created and no data leaves your computer.</p>
+      </article>
+    </section>
+
+    <!-- Simulated calls -->
+    <section class="card" id="simulate">
+      <h2>📞 Simulate an incoming call</h2>
+      <p class="card-sub">Hear how Aria handles a real call. Pick a scenario — the full scripted transcript appears below, and the call is added to the log.</p>
+      <div class="scenarios">
+        <button type="button" class="btn btn-ghost" data-scenario="booking">📅 Booking</button>
+        <button type="button" class="btn btn-ghost" data-scenario="reschedule">🔁 Reschedule</button>
+        <button type="button" class="btn btn-ghost" data-scenario="pricing">💲 Pricing</button>
+        <button type="button" class="btn btn-ghost" data-scenario="emergency">🚨 Emergency</button>
+      </div>
+      <div class="transcript" id="transcript" hidden></div>
+    </section>
+
+    <!-- Call log -->
+    <section class="card" id="log">
+      <div class="log-head">
+        <h2>📋 Call &amp; booking log</h2>
+        <button type="button" class="btn btn-ghost btn-small" id="refreshLog">↻ Refresh</button>
+      </div>
+      <p class="card-sub">Every chat booking and simulated call is logged here — in the real system this goes to Google Sheets + email via n8n.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Ref</th><th>Type</th><th>Caller</th><th>Summary</th><th>Time</th></tr>
+          </thead>
+          <tbody id="callsBody">
+            <tr><td colspan="5">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="card" id="how">
+      <h2>⚙️ How it works — the n8n pipeline</h2>
+      <div class="pipeline">
+        <div class="pipe-step"><span class="pipe-num">1</span><strong>Patient calls / chats</strong><span>Phone or website widget</span></div>
+        <div class="pipe-arrow" aria-hidden="true">→</div>
+        <div class="pipe-step"><span class="pipe-num">2</span><strong>Webhook</strong><span>n8n receives the call or message</span></div>
+        <div class="pipe-arrow" aria-hidden="true">→</div>
+        <div class="pipe-step"><span class="pipe-num">3</span><strong>AI Agent</strong><span>OpenAI agent answers, books, qualifies</span></div>
+        <div class="pipe-arrow" aria-hidden="true">→</div>
+        <div class="pipe-step"><span class="pipe-num">4</span><strong>Google Sheets</strong><span>Call + booking logged automatically</span></div>
+        <div class="pipe-arrow" aria-hidden="true">→</div>
+        <div class="pipe-step"><span class="pipe-num">5</span><strong>Gmail summary</strong><span>Owner gets a summary by email</span></div>
+      </div>
+      <p>
+        The production workflow is in <code>n8n/aria-voice-receptionist.json</code> —
+        import it into n8n, connect your own OpenAI, Google Sheets and Gmail
+        credentials, and point your phone system / website at the webhook.
+        The Python server on this page is the <em>demo</em> version of the same
+        idea: same API shape, same log — but with a rule-based agent instead
+        of a live LLM, so it runs anywhere with zero setup.
+      </p>
+      <p class="fineprint">
+        Pricing shown here is sample data for the fictional BrightSmile Dental clinic.
+        In production, prices come from the business's own price list.
+      </p>
+    </section>
+
+    <footer class="footer">
+      <p>
+        Aria — AI Voice Receptionist · Built by
+        <a href="https://github.com/hamidraza-bot">Hamid Raza</a> ·
+        <a href="https://github.com/hamidraza-bot/Ai-lead-bot">Ai-lead-bot on GitHub</a> ·
+        MIT License
+      </p>
+      <p class="fineprint">Demo project — sample data only. No real patients, clients, or results.</p>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
